@@ -20,16 +20,20 @@ struct EditBannerImageView: View {
     var body: some View {
         ZStack {
             Color(uiColor: .systemBackground)
-            KFAnimatedImage(get_banner_url(banner: banner_image?.absoluteString, pubkey: damus_state.pubkey, profiles: damus_state.profiles))
-                .imageContext(.banner)
-                .configure { view in
-                    view.framePreloadCount = 3
-                }
-                .placeholder { _ in
-                    Color(uiColor: .secondarySystemBackground)
-                }
-                .onFailureImage(defaultImage)
-            
+            if let bannerUrl = get_banner_url(banner: banner_image?.absoluteString, pubkey: damus_state.pubkey, profiles: damus_state.profiles) {
+                KFAnimatedImage(bannerUrl)
+                    .imageContext(.banner)
+                    .configure { view in
+                        view.framePreloadCount = 3
+                    }
+                    .placeholder { _ in
+                        Color(uiColor: .secondarySystemBackground)
+                    } // url is not nil, but content is inaccessible
+                    .onFailureImage(defaultImage)
+            } else {
+                Image(uiImage: defaultImage).resizable()
+            }
+
             EditPictureControl(pubkey: damus_state.pubkey, image_url: $banner_image, uploadObserver: viewModel, callback: callback)
         }
     }
